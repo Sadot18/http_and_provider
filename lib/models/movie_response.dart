@@ -18,7 +18,7 @@ class MovieResponse {
   final int totalResults;
 
   MovieResponse({
-    required this.dates,
+    this.dates,
     required this.page,
     required this.results,
     required this.totalPages,
@@ -26,7 +26,7 @@ class MovieResponse {
   });
 
   factory MovieResponse.fromJson(Map<String, dynamic> json) => MovieResponse(
-    dates: json["dates"],
+    dates: null,
     page: json["page"],
     results: List<Movie>.from(json["results"].map((x) => Movie.fromJson(x))),
     totalPages: json["total_pages"],
