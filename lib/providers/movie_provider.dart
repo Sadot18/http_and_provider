@@ -1,36 +1,41 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:http_and_provider/models/movie.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
-class MovieProvider extends ChangeNotifier{
+import 'package:http_and_provider/models/movie_response.dart';
 
+class MovieProvider extends ChangeNotifier {
+  // ignore: non_constant_identifier_names
   List<Movie> now_playing = [];
+
   final String _dominio = 'api.themoviedb.org';
   final String _segmento = '3/movie/now_playing';
-  final String _apiKey = '5999788a963ea326c8ceb13a398a73a1';
+  // ignore: non_constant_identifier_names
+  final String _api_key = '5999788a963ea326c8ceb13a398a73a1';
   final String _language = 'es-MX';
 
   MovieProvider() {
-    getMoviesNowPlaying();
+    getMoviesUno();
   }
 
-  Future<List<Movie>> getMoviesNowPlaying() async {
-    final response = await http.get(Uri.https(_dominio, _segmento, {
-      'api_key': _apiKey,
+  Future<String> getMoviesNowPlaying() async {
+    final url = Uri.https(_dominio, _segmento, {
+      'api_key': _api_key,
       'language': _language,
-    }));
+    });
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> json = jsonDecode(response.body);
-      final List<dynamic> results = json['results'];
-      now_playing = results.map((dynamic item) => Movie.fromJson(item)).toList();
-      notifyListeners();
-      return now_playing;
-    } else {
-      throw Exception('Failed to load movies');
-    }
+    final respuesta = await http.get(url);
+    return respuesta.body;
   }
-  
+
+  void getMoviesUno() async {
+    final response = await getMoviesNowPlaying();
+    var jsonResponse = convert.jsonDecode(response) as Map<String, dynamic>;
+    final movieResponse = MovieResponse.fromJson(jsonResponse);
+    //now_playing = [ ...now_playing, ...movieResponse.results ];
+    now_playing = movieResponse.results;
+
+    notifyListeners();
+  }
 }
